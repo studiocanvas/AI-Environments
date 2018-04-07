@@ -559,8 +559,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 0.1
-  baseID: 0
-  id: 0_0
 --- !u!114 &114279823723501928
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -687,6 +685,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthBar: {fileID: 114291811878613538}
+  isBillboard: 1
 --- !u!135 &135539701289635454
 SphereCollider:
   m_ObjectHideFlags: 1
@@ -761,8 +760,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 1.15}
-  m_SizeDelta: {x: 1, y: 0.2}
+  m_AnchoredPosition: {x: 0, y: 1.25}
+  m_SizeDelta: {x: 1, y: 0.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224980104502393970
 RectTransform:

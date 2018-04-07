@@ -5,6 +5,10 @@ DESCRIPTION:
 
 Strategy game environment used for testing AI against the basic elements of a strategy game.
 
+GAME GOAL: 
+
+Destroy enemy castle.
+
 GAME FEATURES:
 
 - Mining

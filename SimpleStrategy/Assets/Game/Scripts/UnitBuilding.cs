@@ -13,5 +13,6 @@ public class UnitBuilding : Unit {
 	}
 	public override void Died() {
 		selectBuilding.buildCtrls.BuildDestroy (selectBuilding.buildUnit);
+		transform.parent = null;
 	}
 }
