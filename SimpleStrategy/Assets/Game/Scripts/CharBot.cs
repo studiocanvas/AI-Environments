@@ -22,7 +22,11 @@ public class CharBot : MonoBehaviour {
 		agent.stoppingDistance = stopRange;
 		agent.speed = walkSpeed * (1/GameManager.globalSpeed);
 	}
-	
+
+	void OnDisable() {
+		StopAllCoroutines ();
+	}
+
 	// Update is called once per frame
 	public void Attack ( Transform inTarget ) {
 		if (prevAttackTarget != inTarget) {
@@ -47,11 +51,42 @@ public class CharBot : MonoBehaviour {
 			while (target.isActive) {
 				//Debug.Log ("Hit");
 				yield return new WaitForSeconds(1f * GameManager.globalSpeed);
-				target.Damage (hitStrength);
+				target.Damage (unit, hitStrength);
 			}
 			anim.SetBool ("isAttacking", false);
 			anim.SetBool ("isIdle", true);
-			AttackNearbyEnemy ();
+			StartCoroutine (DetectUpdate ());
+		}
+	}
+
+	/// <summary>
+	/// Walk to the specified position.
+	/// </summary>
+	/// <param name="inPos">In position.</param>
+	public void Walk ( Vector3 inPos ) {
+		//Debug.Log ("Walk");
+		if (unit.isActive) {
+			StopAllCoroutines ();
+			agent.enabled = false;
+			agent.enabled = true;
+			agent.ResetPath ();
+			agent.destination = inPos;
+			anim.SetBool ("isAttacking", false);
+			anim.SetBool ("isIdle", true);
+			StartCoroutine (DetectUpdate ());
+		}
+	}
+	/// <summary>
+	/// Detects the nearby enemy update.
+	/// </summary>
+	/// <returns>The update.</returns>
+	IEnumerator DetectUpdate() {
+		while (true) {
+			yield return null;
+			Unit target = DetectNearbyEnemy ();
+			if (target) {
+				Attack (target.transform);
+			}
 		}
 	}
 	/// <summary>
@@ -61,7 +96,7 @@ public class CharBot : MonoBehaviour {
 		Collider[] enemies = Physics.OverlapSphere(transform.position, detectRange);
 		foreach (Collider enemy in enemies) {
 			Unit target = enemy.gameObject.GetComponent<Unit> ();
-			if (target && target.zone != unit.zone) {
+			if (target && target.zone != unit.zone && target.isActive) {
 				return target;
 				break;
 			}
@@ -76,16 +111,5 @@ public class CharBot : MonoBehaviour {
 		if (target) {
 			Attack (target.transform);
 		}
-	}
-
-	public void Walk ( Vector3 inPos ) {
-		//Debug.Log ("Walk");
-		StopAllCoroutines ();
-		agent.enabled = false;
-		agent.enabled = true;
-		agent.ResetPath ();
-		agent.destination = inPos;
-		anim.SetBool ("isAttacking", false);
-		anim.SetBool ("isIdle", true);
 	}
 }

@@ -21,7 +21,7 @@ public class Zone : MonoBehaviour {
 	MeshRenderer meshRenderer;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		places = GetComponentsInChildren<BoxCollider> ();
 		meshRenderer = GetComponent<MeshRenderer> ();
 		meshRenderer.material = zoneMats [(int)clan];

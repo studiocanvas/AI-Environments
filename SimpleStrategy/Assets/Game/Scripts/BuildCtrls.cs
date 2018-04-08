@@ -4,12 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class BuildCtrls : MonoBehaviour {
-	public enum CtrlType {
-		Mouse,
-		Keyboard,
-		Bot
-	}
-	public CtrlType ctrlType;
 
 	BuildCtrls[] buildCtrls;
 
@@ -20,28 +14,32 @@ public class BuildCtrls : MonoBehaviour {
 	public GameObject castlePrefab;
 	public Unit[,] buildStores = new Unit[3,25];
 	public Unit[] charStores = new Unit[50];
-	Unit castle;
+	public Unit castle;
 	public enum BuildUnit {
 		Miner,
 		Barracks,
 		Turret,
-		Soldier
+		Soldier,
+		None
 	}
 		
-	BuildButton[] uiBuildButtons = new BuildButton[4];
+	public BuildButton[] uiBuildButtons = new BuildButton[4];
 	Text txtGold;
 
 	int prevGold;
 	int resetGold = 100;
-	int gold;
+	public int gold;
 	float mineTimer;
 	float mineRate = 1f;
 	int mineDig = 5;
 
 	int[] costs = new int[] {100, 200,150,75};
-	float[] timers = new float[] {0.01f, 0.001f,0.005f,0.01f};
+	float[] timers = new float[] {0.01f, 0.0025f,0.005f,0.01f};
 	int[] dependents = new int[] {-1,0,0,1};
 	int[] counters = new int[4];
+
+	public int kills = 0;
+	public int deaths = 0;
 
 	Selector selector;
 
@@ -62,7 +60,7 @@ public class BuildCtrls : MonoBehaviour {
 		StartGame ();
 	}
 
-	void StartGame() {
+	public void StartGame() {
 		SetupCastle ();
 		SetupBuildings ();
 		SetupChars ();
@@ -70,6 +68,8 @@ public class BuildCtrls : MonoBehaviour {
 		// Reset Counters
 		gold = resetGold;
 		counters = new int[4];
+		kills = 0;
+		deaths = 0;
 	}
 	// Reset Castle
 	void SetupCastle() {
@@ -78,7 +78,7 @@ public class BuildCtrls : MonoBehaviour {
 			castle = newBuilding.GetComponent<Unit> ();
 		}
 		SetTarget (castle.transform, zone.startPlace.transform);
-		castle.Reset (zone);
+		castle.Reset (BuildUnit.None, zone);
 	}
 	// Reset All Buildings
 	void SetupBuildings() {
@@ -101,7 +101,6 @@ public class BuildCtrls : MonoBehaviour {
 		
 	void Update () {
 		if (castle.isActive) {
-			CtrlInput ();
 
 			// Activate Buttons when dependant is built
 			for (int i = 0; i < uiBuildButtons.Length; i++) {
@@ -120,6 +119,12 @@ public class BuildCtrls : MonoBehaviour {
 
 			// Increase Soldier Production with more Barracks
 			uiBuildButtons[(int)BuildUnit.Soldier].loadRate = GetBuildCount (BuildUnit.Barracks) * timers[(int)BuildUnit.Soldier];
+			if (GetBuildCount (BuildUnit.Barracks) == 0) {
+				if (uiBuildButtons [(int)BuildUnit.Soldier].isActive) {
+					uiBuildButtons [(int)BuildUnit.Soldier].isActive = false;
+					uiBuildButtons [(int)BuildUnit.Soldier].StopLoad ();
+				}
+			}
 
 			// Increase Gold Mining
 			if (Time.time > mineTimer + mineRate * GameManager.globalSpeed) {
@@ -147,26 +152,7 @@ public class BuildCtrls : MonoBehaviour {
 	public void ButtonInput ( Button inButton ) {
 		Build (inButton.gameObject.name);
 	} 
-	/// <summary>
-	/// Keyboard input.
-	/// </summary>
-	public void CtrlInput() {
-		if (ctrlType == CtrlType.Keyboard) {
-			if (Input.GetKeyUp (KeyCode.Alpha1) && uiBuildButtons [(int)BuildUnit.Miner].button.interactable) {
-				Build ("Button Miner");
-			}
-			if (Input.GetKeyUp (KeyCode.Alpha2) && uiBuildButtons [(int)BuildUnit.Barracks].button.interactable) {
-				Build ("Button Barracks");
-			}
-			if (Input.GetKeyUp (KeyCode.Alpha3) && uiBuildButtons [(int)BuildUnit.Turret].button.interactable) {
-				Build ("Button Turret");
-			}
-			if (Input.GetKeyUp (KeyCode.Alpha4) && uiBuildButtons [(int)BuildUnit.Soldier].button.interactable) {
-				Build ("Button Soldier");
-			}
-		}
-	}
-	void Build ( string inName ) {
+	public void Build ( string inName ) {
 		switch (inName) {
 		case "Button Miner":
 			StopAllCoroutines ();
@@ -193,22 +179,25 @@ public class BuildCtrls : MonoBehaviour {
 	/// </summary>
 	/// <param name="inBuildUnit">In build unit.</param>
 	public void CreateChar ( BuildUnit inBuildUnit ) {
-		gold -= costs[(int)inBuildUnit];
-		counters [(int)inBuildUnit]++;
+		if (gold >= costs [(int)inBuildUnit] && GetBuildCount (BuildUnit.Barracks) > 0) {
+			gold -= costs[(int)inBuildUnit];
+			counters [(int)inBuildUnit]++;
 
-		int poolNum = CheckCharPool ();
-		int spawnNum = GetRandomCharSpawn ();
-		if (spawnNum >= 0) {
-			Vector3 spawnPoint = buildStores [(int)BuildUnit.Barracks, spawnNum].transform.position;
-			if (poolNum >= 0) {
-				if (!charStores [poolNum]) {
-					GameObject newChar = Instantiate (charPrefabs [0], spawnPoint, Quaternion.identity);
-					charStores [poolNum] = newChar.GetComponent<Unit> ();
+			int poolNum = CheckCharPool ();
+			int spawnNum = GetRandomCharSpawn ();
+			if (spawnNum >= 0) {
+				Vector3 spawnPoint = buildStores [(int)BuildUnit.Barracks, spawnNum].transform.position;
+				if (poolNum >= 0) {
+					if (!charStores [poolNum]) {
+						GameObject newChar = Instantiate (charPrefabs [0], spawnPoint, Quaternion.identity);
+						charStores [poolNum] = newChar.GetComponent<Unit> ();
+					}
+					charStores [poolNum].Reset (inBuildUnit, zone);
+					charStores [poolNum].transform.position = spawnPoint;
+					charStores [poolNum].buildCtrl = this;
+					CharBot charBot = charStores [poolNum].gameObject.GetComponent<CharBot> ();
+					charBot.Walk (spawnPoint + new Vector3 (GetRandomDirection (), 0, GetRandomDirection ()));
 				}
-				charStores [poolNum].Reset (zone);
-				charStores [poolNum].transform.position = spawnPoint;
-				CharBot charBot = charStores [poolNum].gameObject.GetComponent<CharBot> ();
-				charBot.Walk (spawnPoint + new Vector3 (GetRandomDirection (), 0, GetRandomDirection ()));
 			}
 		}
 	}
@@ -230,16 +219,19 @@ public class BuildCtrls : MonoBehaviour {
 	int GetRandomCharSpawn() {
 		int r = Random.Range (0, buildStores.GetLength (1));
 		int i = 0;
-		int t = 0;
+		int x = 0;
 		int s = -1;
+		int t = 0;
+		int m = buildStores.GetLength (1) * buildStores.GetLength(1);
 		do {
 			i++;
 			i = i%(buildStores.GetLength(1)-1);
 			if (buildStores [(int)BuildUnit.Barracks, i] && buildStores [(int)BuildUnit.Barracks, i].isActive) {
-				t++;
+				x++;
 				s = i;
 			}
-		} while (t < r);
+			t++;
+		} while (x < r && t < m);
 		return s;
 	}
 
@@ -283,21 +275,24 @@ public class BuildCtrls : MonoBehaviour {
 	/// <param name="inBuildUnit">In build unit.</param>
 	/// <param name="inTarget">In target.</param>
 	public void BuildConfirm ( BuildUnit inBuildUnit, Transform inTarget ) {
-		Zone tempZone = inTarget.gameObject.GetComponentInParent<Zone> ();
-		if (zone == tempZone && inTarget.childCount == 0) {
-			zone.Deactivate ();
-			gold -= costs [(int)inBuildUnit];
-			counters [(int)inBuildUnit]++;
+		if (gold >= costs[(int)inBuildUnit] && inTarget.childCount == 0) {
+			Zone tempZone = inTarget.gameObject.GetComponentInParent<Zone> ();
+			if (zone == tempZone) {
+				zone.Deactivate ();
+				gold -= costs [(int)inBuildUnit];
+				counters [(int)inBuildUnit]++;
 
-			int poolNum = CheckBuildPool (inBuildUnit);
-			if (poolNum >= 0) {
-				if (!buildStores [(int)inBuildUnit, poolNum]) {
-					GameObject newBuilding = Instantiate (buildPrefabs [(int)inBuildUnit], inTarget.position, Quaternion.identity);
-					buildStores [(int)inBuildUnit, poolNum] = newBuilding.GetComponent<Unit> ();
+				int poolNum = CheckBuildPool (inBuildUnit);
+				if (poolNum >= 0) {
+					if (!buildStores [(int)inBuildUnit, poolNum]) {
+						GameObject newBuilding = Instantiate (buildPrefabs [(int)inBuildUnit], inTarget.position, Quaternion.identity);
+						buildStores [(int)inBuildUnit, poolNum] = newBuilding.GetComponent<Unit> ();
+					}
+					buildStores [(int)inBuildUnit, poolNum].Reset (inBuildUnit, zone);
+					buildStores [(int)inBuildUnit, poolNum].buildCtrl = this;
+					SetTarget (buildStores [(int)inBuildUnit, poolNum].transform, inTarget);
+					GameManager.RecordPlaces (zone, int.Parse (inTarget.gameObject.name), inBuildUnit);
 				}
-				buildStores [(int)inBuildUnit, poolNum].Reset (zone);
-				SetTarget (buildStores [(int)inBuildUnit, poolNum].transform, inTarget);
-
 			}
 		}
 	}

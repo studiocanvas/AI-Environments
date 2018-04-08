@@ -7,6 +7,8 @@
 /[Bb]uilds/
 /[Ll]ibrary/
 /[Uu]nityPackageManager/
+/Assets/ML-Agents/Plugins/Computer/
+/Assets/ML-Agents/Plugins/iOS/
 sysinfo.txt
 *.stackdump
 /Assets/AssetStoreTools*

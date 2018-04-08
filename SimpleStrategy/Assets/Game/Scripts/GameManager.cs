@@ -7,11 +7,89 @@ public class GameManager : MonoBehaviour {
 	/// <summary>
 	/// The global speed.
 	/// </summary>
-	public static float globalSpeed = 0.2f;
+	public static float globalSpeed = 0.01f;
+
+	// Recorders
+	public Zone[] m_zones;
+	public static Zone[] zones;
+	public BuildCtrls[] m_buildCtrls;
+	static BuildCtrls[] buildCtrls;
+	public static float[] golds;
+	public static float[] loaders;
+	public static float[] places;
+	public static Vector3[] charPos;
 
 	// Use this for initialization
-	void Start () {
-		
+	void Awake() {
+		buildCtrls = m_buildCtrls;
+		zones = m_zones;
+		golds = new float[buildCtrls.Length];
+		places = new float[zones[0].places.Length * zones.Length];
+		loaders = new float[buildCtrls.Length * buildCtrls[0].uiBuildButtons.Length];
+	}
+	void Start() {
+		ResetPlaces ();
 	}
 
+	/// <summary>
+	/// Resets the game.
+	/// </summary>
+	public static void ResetGame() {
+		foreach (BuildCtrls buildCtrl in buildCtrls) {
+			buildCtrl.StartGame ();
+		}
+	}
+
+	/// <summary>
+	/// Resets the places.
+	/// </summary>
+	public static void ResetPlaces () {
+		for (int i = 0; i < places.Length; i++) {
+			places [i] = -1f;
+		}
+	}
+
+	/// <summary>
+	/// Records the places.
+	/// </summary>
+	/// <param name="inZone">In zone.</param>
+	/// <param name="inPlace">In place.</param>
+	/// <param name="inBuildUnit">In build unit.</param>
+	public static void RecordPlaces( Zone inZone, int inPlace, BuildCtrls.BuildUnit inBuildUnit) {
+		int zoneCount = (int)inZone.clan * inZone.places.Length;
+		places [inPlace + zoneCount] = (float)inBuildUnit;
+	}
+
+	public static void RemovePlaces( Zone inZone, Unit inUnit ) {
+		int zoneCount = (int)inZone.clan * inZone.places.Length;
+		if (inUnit.transform.parent != null) {
+			int placeNum = int.Parse (inUnit.transform.parent.gameObject.name);
+			places [placeNum + zoneCount] = -1f;
+		}
+	}
+
+	void Update() {
+		// Record Loader state
+		int b = -1;
+		for (int i = 0; i < loaders.Length; i++) {
+			int j = i % buildCtrls [0].uiBuildButtons.Length;
+			if (j == 0) {
+				b++;
+			}
+			loaders [i] = buildCtrls[b].uiBuildButtons[j].loadValue;
+		}
+
+		// Record Gold state
+		for (int g = 0; g < buildCtrls.Length; g++) {
+			golds [g] = buildCtrls [g].gold;
+		}
+
+		CharBot[] charBots = FindObjectsOfType<CharBot> ();
+		if (charBots.Length > 0) {
+			charPos = new Vector3[charBots.Length];
+			for (int c = 0; c < charBots.Length; c++) {
+				charPos [c] = charBots [c].transform.position;
+			}
+		}
+	}
 }

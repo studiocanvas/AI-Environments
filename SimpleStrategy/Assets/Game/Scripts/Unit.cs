@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class Unit : MonoBehaviour {
 
+	public int id;
+	int idCounter = 0;
 	public float maxHealth = 1f; 
 	float minHealth = 0f;
 	public float health = 1f;
@@ -15,6 +17,7 @@ public class Unit : MonoBehaviour {
 	MeshRenderer[] meshRenderers;
 
 	public Zone zone;
+	public BuildCtrls buildCtrl;
 
 	void Awake() {
 		UI = GetComponentInChildren<UnitUI> (true);
@@ -43,7 +46,9 @@ public class Unit : MonoBehaviour {
 	/// Reset ths unit.
 	/// </summary>
 	/// <param name="inZone">In zone.</param>
-	public void Reset( Zone inZone ) {
+	public void Reset( BuildCtrls.BuildUnit builtUnit, Zone inZone ) {
+		idCounter++;
+		id = ((int)builtUnit * 1000) + (idCounter%100) + ((int)inZone.clan * 10000);
 		zone = inZone;
 		SetMaterial (zone.clan);
 		health = maxHealth;
@@ -57,25 +62,24 @@ public class Unit : MonoBehaviour {
 	/// Damage applied to this unit.
 	/// </summary>
 	/// <param name="inDamage">In damage.</param>
-	public void Damage( float inDamage ) {
+	public void Damage( Unit inUnit, float inDamage ) {
 		health -= inDamage;
 		health = Mathf.Clamp (health, minHealth, maxHealth);
 		UpdateHealthUI ();
 
 		if (health <= minHealth) {
+			inUnit.buildCtrl.kills++;
 			Died ();
-			gameObject.SetActive (false);
-			isActive = false;
 		} else {
 			StopAllCoroutines ();
 			StartCoroutine (Recover ());
-			isActive = true;
 		}
 	}
 	/// <summary>
 	/// Auto Recovery for unit.
 	/// </summary>
 	IEnumerator Recover() {
+		isActive = true;
 		yield return new WaitForSeconds (2f * GameManager.globalSpeed);
 		//Debug.Log ("Recover");
 		while (health < maxHealth) {
@@ -93,6 +97,13 @@ public class Unit : MonoBehaviour {
 		UI.healthBar.fillAmount = health/maxHealth;
 	}
 
-	public virtual void Died() {
+	public void Died() {
+		GameManager.RemovePlaces (zone, this);
+		isActive = false;
+		gameObject.SetActive (false);
+		transform.parent = null;
+		if (buildCtrl) {
+			buildCtrl.deaths++;
+		}
 	}
 }

@@ -79,20 +79,11 @@ public class Turret : MonoBehaviour {
 			yield return null;
 		}
 		if (Vector3.Distance (weapon.transform.position, inTarget.transform.position) < blastRange) {
-			inTarget.Damage (hitStrength);
+			inTarget.Damage (unit, hitStrength);
 		}
 		weapon.transform.localPosition = Vector3.zero;
 		yield return new WaitForSeconds (1f * GameManager.globalSpeed);
 		isShooting = false;
-		Debug.Log ("endshoot");
 	}
-//	// Update is called once per frame
-//	void OnTriggerStay( Collider inCollider ) {
-//		if (inCollider.gameObject != gameObject) {
-//			Unit newUnit = inCollider.gameObject.GetComponent<Unit> ();
-//			if (newUnit && (newUnit.zone != unit.zone || newUnit.zone == null)) {
-//				Debug.Log ("Intruder");
-//			}
-//		}
-//	}
+
 }
