@@ -98,12 +98,12 @@ public class Unit : MonoBehaviour {
 	}
 
 	public void Died() {
-		GameManager.RemovePlaces (zone, this);
+		if (buildCtrl) {
+			buildCtrl.gameManager.RemovePlaces (zone, this);
+			buildCtrl.deaths++;
+		}
 		isActive = false;
 		gameObject.SetActive (false);
 		transform.parent = null;
-		if (buildCtrl) {
-			buildCtrl.deaths++;
-		}
 	}
 }

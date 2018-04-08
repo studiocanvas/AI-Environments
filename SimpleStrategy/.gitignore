@@ -9,6 +9,7 @@
 /[Uu]nityPackageManager/
 /Assets/ML-Agents/Plugins/Computer/
 /Assets/ML-Agents/Plugins/iOS/
+/Assets/ML-Agents/Examples/
 sysinfo.txt
 *.stackdump
 /Assets/AssetStoreTools*

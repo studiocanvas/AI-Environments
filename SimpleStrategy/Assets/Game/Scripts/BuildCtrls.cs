@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class BuildCtrls : MonoBehaviour {
 
 	BuildCtrls[] buildCtrls;
-
+	public GameManager gameManager;
 	public Zone zone;
 
 	public GameObject[] buildPrefabs;
@@ -40,6 +40,7 @@ public class BuildCtrls : MonoBehaviour {
 
 	public int kills = 0;
 	public int deaths = 0;
+	public int creates = 0;
 
 	Selector selector;
 
@@ -70,6 +71,7 @@ public class BuildCtrls : MonoBehaviour {
 		counters = new int[4];
 		kills = 0;
 		deaths = 0;
+		creates = 0;
 	}
 	// Reset Castle
 	void SetupCastle() {
@@ -182,6 +184,7 @@ public class BuildCtrls : MonoBehaviour {
 		if (gold >= costs [(int)inBuildUnit] && GetBuildCount (BuildUnit.Barracks) > 0) {
 			gold -= costs[(int)inBuildUnit];
 			counters [(int)inBuildUnit]++;
+			creates++;
 
 			int poolNum = CheckCharPool ();
 			int spawnNum = GetRandomCharSpawn ();
@@ -275,12 +278,13 @@ public class BuildCtrls : MonoBehaviour {
 	/// <param name="inBuildUnit">In build unit.</param>
 	/// <param name="inTarget">In target.</param>
 	public void BuildConfirm ( BuildUnit inBuildUnit, Transform inTarget ) {
-		if (gold >= costs[(int)inBuildUnit] && inTarget.childCount == 0) {
+		if (costs.Length > (int)inBuildUnit && gold >= costs[(int)inBuildUnit] && inTarget.childCount == 0) {
 			Zone tempZone = inTarget.gameObject.GetComponentInParent<Zone> ();
 			if (zone == tempZone) {
 				zone.Deactivate ();
 				gold -= costs [(int)inBuildUnit];
 				counters [(int)inBuildUnit]++;
+				creates++;
 
 				int poolNum = CheckBuildPool (inBuildUnit);
 				if (poolNum >= 0) {
@@ -291,7 +295,7 @@ public class BuildCtrls : MonoBehaviour {
 					buildStores [(int)inBuildUnit, poolNum].Reset (inBuildUnit, zone);
 					buildStores [(int)inBuildUnit, poolNum].buildCtrl = this;
 					SetTarget (buildStores [(int)inBuildUnit, poolNum].transform, inTarget);
-					GameManager.RecordPlaces (zone, int.Parse (inTarget.gameObject.name), inBuildUnit);
+					gameManager.RecordPlaces (zone, int.Parse (inTarget.gameObject.name), inBuildUnit);
 				}
 			}
 		}

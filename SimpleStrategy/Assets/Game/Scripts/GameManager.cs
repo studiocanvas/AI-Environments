@@ -9,20 +9,20 @@ public class GameManager : MonoBehaviour {
 	/// </summary>
 	public static float globalSpeed = 0.01f;
 
+
 	// Recorders
-	public Zone[] m_zones;
-	public static Zone[] zones;
-	public BuildCtrls[] m_buildCtrls;
-	static BuildCtrls[] buildCtrls;
-	public static float[] golds;
-	public static float[] loaders;
-	public static float[] places;
-	public static Vector3[] charPos;
+	public Zone[] zones;
+	public BuildCtrls[] buildCtrls;
+	public float[] golds;
+	public float[] loaders;
+	public float[] places;
+	public Vector3[] charPos;
+
+	float startTime;
+	float timeLimit = 5f;
 
 	// Use this for initialization
 	void Awake() {
-		buildCtrls = m_buildCtrls;
-		zones = m_zones;
 		golds = new float[buildCtrls.Length];
 		places = new float[zones[0].places.Length * zones.Length];
 		loaders = new float[buildCtrls.Length * buildCtrls[0].uiBuildButtons.Length];
@@ -34,16 +34,17 @@ public class GameManager : MonoBehaviour {
 	/// <summary>
 	/// Resets the game.
 	/// </summary>
-	public static void ResetGame() {
+	public void ResetGame() {
 		foreach (BuildCtrls buildCtrl in buildCtrls) {
 			buildCtrl.StartGame ();
 		}
+		startTime = Time.time;
 	}
 
 	/// <summary>
 	/// Resets the places.
 	/// </summary>
-	public static void ResetPlaces () {
+	public void ResetPlaces () {
 		for (int i = 0; i < places.Length; i++) {
 			places [i] = -1f;
 		}
@@ -55,12 +56,12 @@ public class GameManager : MonoBehaviour {
 	/// <param name="inZone">In zone.</param>
 	/// <param name="inPlace">In place.</param>
 	/// <param name="inBuildUnit">In build unit.</param>
-	public static void RecordPlaces( Zone inZone, int inPlace, BuildCtrls.BuildUnit inBuildUnit) {
+	public void RecordPlaces( Zone inZone, int inPlace, BuildCtrls.BuildUnit inBuildUnit) {
 		int zoneCount = (int)inZone.clan * inZone.places.Length;
 		places [inPlace + zoneCount] = (float)inBuildUnit;
 	}
 
-	public static void RemovePlaces( Zone inZone, Unit inUnit ) {
+	public void RemovePlaces( Zone inZone, Unit inUnit ) {
 		int zoneCount = (int)inZone.clan * inZone.places.Length;
 		if (inUnit.transform.parent != null) {
 			int placeNum = int.Parse (inUnit.transform.parent.gameObject.name);

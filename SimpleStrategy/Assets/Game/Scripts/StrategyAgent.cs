@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class StrategyAgent : Agent
 {
@@ -10,20 +11,23 @@ public class StrategyAgent : Agent
 	int zoneSelect = 0;
 	int prevKills;
 	int prevDeaths;
+	int prevCreates;
+	Text txtDebug;
 
 	public override void InitializeAgent()
 	{
 		buildCtrl = GetComponent<BuildCtrls> ();
+		txtDebug = transform.Find("Text Debug").gameObject.GetComponent<Text>();
 	}
 
 	public override void CollectObservations()
 	{
 		// UI
-		AddVectorObs(GameManager.loaders);
-		AddVectorObs(GameManager.golds);
+		AddVectorObs(buildCtrl.gameManager.loaders);
+		AddVectorObs(buildCtrl.gameManager.golds);
 
 		// Building positions
-		AddVectorObs(GameManager.places);
+		AddVectorObs(buildCtrl.gameManager.places);
 
 		// Character Movements
 //		foreach (Vector3 charPos in GameManager.charPos) {
@@ -34,7 +38,7 @@ public class StrategyAgent : Agent
 	public override void AgentAction(float[] vectorAction, string textAction)
 	{
 		int action = Mathf.FloorToInt(vectorAction[0]);
-		//Debug.Log (action);
+
 		// Building
 		switch (action)
 		{
@@ -79,6 +83,9 @@ public class StrategyAgent : Agent
 
 
 		if (action > 0) {
+			//Debug.Log (action);
+			//txtDebug.text = action.ToString ();
+
 			if (buildUnit != BuildCtrls.BuildUnit.None) {
 				//Debug.Log (action);
 				buildCtrl.BuildConfirm (buildUnit, buildCtrl.zone.places [action - 1].transform);
@@ -87,20 +94,26 @@ public class StrategyAgent : Agent
 
 			// Attack
 			if (charSelect >= 0) {
-				buildCtrl.charStores [charSelect].gameObject.GetComponent<CharBot> ().Walk (GameManager.zones[zoneSelect].places [action - 1].transform.position);
+				buildCtrl.charStores [charSelect].gameObject.GetComponent<CharBot> ().Walk (buildCtrl.gameManager.zones[zoneSelect].places [action - 1].transform.position);
 			}
 		}
+
+		//AddReward(-0.01f);
 
 		// Reward for destroying enemy units
 		if (buildCtrl.kills > prevKills) {
 			prevKills = buildCtrl.kills;
-			AddReward(1f / 3000f);
+			AddReward(1f / 3f);
+		}
+		if (buildCtrl.creates > prevCreates) {
+			prevCreates = buildCtrl.creates;
+			AddReward(1f / 4f);
 		}
 
 		// Penalty for losing units
 		if (buildCtrl.deaths > prevDeaths) {
 			prevDeaths = buildCtrl.deaths;
-			AddReward(-1f / 3000f);
+			AddReward(-1f / 3f);
 		}
 
 		if (!buildCtrl.castle.isActive) {
@@ -112,7 +125,7 @@ public class StrategyAgent : Agent
 	public override void AgentReset()
 	{
 		// Castle Destroyed
-		GameManager.ResetGame();
+		buildCtrl.gameManager.ResetGame();
 		prevKills = 0;
 		prevDeaths = 0;
 		charSelect = -1;
