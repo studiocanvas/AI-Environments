@@ -33,7 +33,8 @@ public class BuildButton : MonoBehaviour {
 
 	public void StopLoad() {
 		StopCoroutine (Loader ());
-		UpdateLoadBar (0f);
+		loadValue = 0;
+		UpdateLoadBar (loadValue);
 	}
 
 	IEnumerator Loader() {

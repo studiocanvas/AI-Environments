@@ -12,6 +12,9 @@ public class StrategyAgent : Agent
 	int prevKills;
 	int prevDeaths;
 	int prevCreates;
+	int maxSteps = 2000;
+	int currentSteps = 0;
+
 	Text txtDebug;
 
 	public override void InitializeAgent()
@@ -55,17 +58,20 @@ public class StrategyAgent : Agent
 			buildCtrl.CreateChar(BuildCtrls.BuildUnit.Soldier);
 			break;
 		case -5:
+			// Control all soldiers
 			buildUnit = BuildCtrls.BuildUnit.None;
-			int tryCount = 0;
-			do {
-				charSelect++;
-				charSelect = charSelect%buildCtrl.charStores.Length;
-				tryCount++;
-				if (tryCount > buildCtrl.charStores.Length) {
-					charSelect = -1;
-					break;
-				}
-			} while (!buildCtrl.charStores [charSelect] || !buildCtrl.charStores [charSelect].isActive);
+
+			// Control single soldier
+//			int tryCount = 0;
+//			do {
+//				charSelect++;
+//				charSelect = charSelect%buildCtrl.charStores.Length;
+//				tryCount++;
+//				if (tryCount > buildCtrl.charStores.Length) {
+//					charSelect = -1;
+//					break;
+//				}
+//			} while (!buildCtrl.charStores [charSelect] || !buildCtrl.charStores [charSelect].isActive);
 			break;
 		case -6:
 			zoneSelect = 0;
@@ -84,7 +90,7 @@ public class StrategyAgent : Agent
 
 		if (action > 0) {
 			//Debug.Log (action);
-			//txtDebug.text = action.ToString ();
+			txtDebug.text = "action:"+ action.ToString ();
 
 			if (buildUnit != BuildCtrls.BuildUnit.None) {
 				//Debug.Log (action);
@@ -93,9 +99,18 @@ public class StrategyAgent : Agent
 			}
 
 			// Attack
-			if (charSelect >= 0) {
-				buildCtrl.charStores [charSelect].gameObject.GetComponent<CharBot> ().Walk (buildCtrl.gameManager.zones[zoneSelect].places [action - 1].transform.position);
+			// Control all soldiers
+			if (buildUnit == BuildCtrls.BuildUnit.None) {
+				foreach (Unit charStore in buildCtrl.charStores) {
+					if (charStore && charStore.isActive) {
+						charStore.gameObject.GetComponent<CharBot> ().Walk (buildCtrl.gameManager.zones [zoneSelect].places [action - 1].transform.position);
+					}
+				}
 			}
+			// Control single soldier
+//			if (charSelect >= 0) {
+//				buildCtrl.charStores [charSelect].gameObject.GetComponent<CharBot> ().Walk (buildCtrl.gameManager.zones[zoneSelect].places [action - 1].transform.position);
+//			}
 		}
 
 		//AddReward(-0.01f);
@@ -104,21 +119,52 @@ public class StrategyAgent : Agent
 		if (buildCtrl.kills > prevKills) {
 			prevKills = buildCtrl.kills;
 			AddReward(1f / 3f);
+			currentSteps = 0;
 		}
 		if (buildCtrl.creates > prevCreates) {
 			prevCreates = buildCtrl.creates;
 			AddReward(1f / 4f);
+			currentSteps = 0;
 		}
 
 		// Penalty for losing units
 		if (buildCtrl.deaths > prevDeaths) {
 			prevDeaths = buildCtrl.deaths;
 			AddReward(-1f / 3f);
+			currentSteps = 0;
 		}
 
+		// Timeout
+		if (buildCtrl.castle.isActive && action != 0) {
+			currentSteps++;
+			txtDebug.text += "\nsteps: "+currentSteps.ToString ();
+			AddReward(-1f / 100f);
+			if (currentSteps > maxSteps) {
+				//Done ();
+				buildCtrl.castle.Died ();
+				buildCtrl.SetupBuildings ();
+			}
+		}
+
+		// lose game
 		if (!buildCtrl.castle.isActive) {
+			AddReward (-2f);
+			currentSteps = 0;
+		}
+
+		// Reset Game
+		int aliveCount = 0;
+		for (int i = 0; i < buildCtrl.gameManager.buildCtrls.Length; i++) {
+			if (buildCtrl.gameManager.buildCtrls [i].castle.isActive) {
+				aliveCount++;
+			}
+		}
+		if (aliveCount <= 1) {
+			if (buildCtrl.castle.isActive) {
+				AddReward (2f);
+			}
+			currentSteps = 0;
 			Done ();
-			SetReward(-1f);
 		}
 	}
 
@@ -129,5 +175,6 @@ public class StrategyAgent : Agent
 		prevKills = 0;
 		prevDeaths = 0;
 		charSelect = -1;
+		currentSteps = 0;
 	}
 }

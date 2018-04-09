@@ -72,7 +72,9 @@ public class Unit : MonoBehaviour {
 			Died ();
 		} else {
 			StopAllCoroutines ();
-			StartCoroutine (Recover ());
+			if (gameObject.activeSelf) {
+				StartCoroutine (Recover ());
+			}
 		}
 	}
 	/// <summary>

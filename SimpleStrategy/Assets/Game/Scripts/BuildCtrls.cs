@@ -83,7 +83,7 @@ public class BuildCtrls : MonoBehaviour {
 		castle.Reset (BuildUnit.None, zone);
 	}
 	// Reset All Buildings
-	void SetupBuildings() {
+	public void SetupBuildings() {
 		for (int c = 0; c < buildStores.GetLength (0); c++) {
 			for (int i = 0; i < buildStores.GetLength (1); i++) {
 				if (buildStores [c, i]) {
@@ -135,14 +135,20 @@ public class BuildCtrls : MonoBehaviour {
 			}
 			if (prevGold != gold) {
 				prevGold = gold;
-				txtGold.text = gold.ToString ();
+				txtGold.text = "$"+gold.ToString ();
 			}
 
 		// Castle Destroyed, Game Over
 		} else {
-			// Restart Game
-			foreach (BuildCtrls buildCtrl in buildCtrls) {
-				buildCtrl.StartGame ();
+//			// Restart Game
+//			foreach (BuildCtrls buildCtrl in buildCtrls) {
+//				buildCtrl.StartGame ();
+//			}
+			for (int i = 0; i < uiBuildButtons.Length; i++) {
+				if (uiBuildButtons [i].isActive) {
+					uiBuildButtons [i].isActive = false;
+					uiBuildButtons [i].StopLoad ();
+				}
 			}
 		}
 	}
@@ -181,7 +187,9 @@ public class BuildCtrls : MonoBehaviour {
 	/// </summary>
 	/// <param name="inBuildUnit">In build unit.</param>
 	public void CreateChar ( BuildUnit inBuildUnit ) {
-		if (gold >= costs [(int)inBuildUnit] && GetBuildCount (BuildUnit.Barracks) > 0) {
+		if (gold >= costs [(int)inBuildUnit] 
+			&& GetBuildCount (BuildUnit.Barracks) > 0
+			&& uiBuildButtons[(int)BuildUnit.Soldier].button.interactable) {
 			gold -= costs[(int)inBuildUnit];
 			counters [(int)inBuildUnit]++;
 			creates++;
@@ -278,7 +286,10 @@ public class BuildCtrls : MonoBehaviour {
 	/// <param name="inBuildUnit">In build unit.</param>
 	/// <param name="inTarget">In target.</param>
 	public void BuildConfirm ( BuildUnit inBuildUnit, Transform inTarget ) {
-		if (costs.Length > (int)inBuildUnit && gold >= costs[(int)inBuildUnit] && inTarget.childCount == 0) {
+		if (costs.Length > (int)inBuildUnit 
+			&& gold >= costs[(int)inBuildUnit] 
+			&& inTarget.childCount == 0
+			&& uiBuildButtons[(int)inBuildUnit].button.interactable) {
 			Zone tempZone = inTarget.gameObject.GetComponentInParent<Zone> ();
 			if (zone == tempZone) {
 				zone.Deactivate ();
