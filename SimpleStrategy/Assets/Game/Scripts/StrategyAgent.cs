@@ -116,19 +116,19 @@ public class StrategyAgent : Agent
 		//AddReward(-0.01f);
 
 		// Reward for destroying enemy units
-		if (buildCtrl.kills > prevKills) {
+		if (buildCtrl.kills != prevKills) {
 			prevKills = buildCtrl.kills;
 			AddReward(1f / 3f);
 			currentSteps = 0;
 		}
-		if (buildCtrl.creates > prevCreates) {
+		if (buildCtrl.creates != prevCreates) {
 			prevCreates = buildCtrl.creates;
 			AddReward(1f / 4f);
 			currentSteps = 0;
 		}
 
 		// Penalty for losing units
-		if (buildCtrl.deaths > prevDeaths) {
+		if (buildCtrl.deaths != prevDeaths) {
 			prevDeaths = buildCtrl.deaths;
 			AddReward(-1f / 3f);
 			currentSteps = 0;
@@ -138,7 +138,7 @@ public class StrategyAgent : Agent
 		if (buildCtrl.castle.isActive && action != 0) {
 			currentSteps++;
 			txtDebug.text += "\nsteps: "+currentSteps.ToString ();
-			AddReward(-1f / 100f);
+			//AddReward(-1f / 100f);
 			if (currentSteps > maxSteps) {
 				//Done ();
 				buildCtrl.castle.Died ();

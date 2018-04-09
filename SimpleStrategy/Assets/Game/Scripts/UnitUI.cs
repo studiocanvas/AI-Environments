@@ -9,12 +9,16 @@ public class UnitUI : MonoBehaviour {
 
 	public bool isBillboard;
 
-	void Awake() {
+	void OnEnable() {
 		if (isBillboard) {
 			StartCoroutine (BillboardUpdate());
 		}
 	}
-
+	void OnDisable() {
+		if (isBillboard) {
+			StopAllCoroutines ();
+		}
+	}
 	IEnumerator BillboardUpdate () {
 		while (true) {
 			healthBar.transform.rotation = Quaternion.identity;

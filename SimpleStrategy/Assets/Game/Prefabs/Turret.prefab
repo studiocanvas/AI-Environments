@@ -295,7 +295,7 @@ Transform:
   m_GameObject: {fileID: 1164222687094050}
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1000001, y: 0.10000016, z: 0.10000011}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_Children: []
   m_Father: {fileID: 4308618918250410}
   m_RootOrder: 0
@@ -542,6 +542,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthBar: {fileID: 114452082919815194}
+  isBillboard: 0
 --- !u!114 &114013635505397552
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -553,11 +554,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bccb0c35a5907c643b0a64f3d6231838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
   maxHealth: 1
   health: 1
   recoveryRate: 0.1
   isActive: 1
   zone: {fileID: 0}
+  buildCtrl: {fileID: 0}
 --- !u!114 &114063167739310622
 MonoBehaviour:
   m_ObjectHideFlags: 1
