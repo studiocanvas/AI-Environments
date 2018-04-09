@@ -36,8 +36,8 @@ The globalSpeed can be adjusted in GameManager for rapid simulation.
 
 ## PREVIEW:
 <p align="center">
-    <img src="images/2018-04-09_00-37-17.gif" 
-        alt="Linux Build Support" 
+    <img src="images/preview.gif" 
+        alt="Simple Strategy Game Preview" 
         width="500" border="10" />
 </p>
 
