@@ -34,10 +34,6 @@ https://github.com/Unity-Technologies/ml-agents/tree/master/docs
 
 The globalSpeed can be adjusted in GameManager for rapid simulation.
 
-## TODO:
-
-- Simplify agent controls as there are too many options for the agent to try, which sometimes leading to no movement at all.
-
 ## PREVIEW:
 <p align="center">
     <img src="images/2018-04-09_00-37-17.gif" 

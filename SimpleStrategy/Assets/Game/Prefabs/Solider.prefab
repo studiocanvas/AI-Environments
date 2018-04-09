@@ -179,7 +179,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4226332528909372}
   - component: {fileID: 33195568813282374}
-  - component: {fileID: 135539701289635454}
   - component: {fileID: 23211462503662640}
   m_Layer: 0
   m_Name: Sphere
@@ -241,7 +240,7 @@ Transform:
   m_GameObject: {fileID: 1824730578218444}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.167, y: 0.222, z: -0}
-  m_LocalScale: {x: 0.01, y: 0.5, z: 0.1}
+  m_LocalScale: {x: 0.05, y: 0.5, z: 0.1}
   m_Children: []
   m_Father: {fileID: 4779158425016042}
   m_RootOrder: 0
@@ -254,7 +253,7 @@ Transform:
   m_GameObject: {fileID: 1894193767666022}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: -0.25, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.5, z: 0.3}
+  m_LocalScale: {x: 0.25, y: 0.5, z: 0.25}
   m_Children: []
   m_Father: {fileID: 4060196116726038}
   m_RootOrder: 0
@@ -514,7 +513,7 @@ BoxCollider:
   m_GameObject: {fileID: 1824730578218444}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 1, y: 1.0000002, z: 1.0000002}
   m_Center: {x: 0, y: 0, z: 0}
@@ -528,7 +527,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.25, y: 0.5, z: 0.25}
+  m_Size: {x: 0.12, y: 0.5, z: 0.12}
   m_Center: {x: 0, y: -0.25, z: 0}
 --- !u!95 &95683836734767752
 Animator:
@@ -688,18 +687,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   healthBar: {fileID: 114291811878613538}
   isBillboard: 1
---- !u!135 &135539701289635454
-SphereCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1894193767666022}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!195 &195702107846661496
 NavMeshAgent:
   m_ObjectHideFlags: 1

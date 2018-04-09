@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour {
 	/// <summary>
 	/// The global speed.
 	/// </summary>
-	public static float globalSpeed = 0.1f;
+	public static float globalSpeed = 0.0001f;
 
 
 	// Recorders

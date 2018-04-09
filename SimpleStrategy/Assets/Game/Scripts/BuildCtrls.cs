@@ -12,7 +12,7 @@ public class BuildCtrls : MonoBehaviour {
 	public GameObject[] buildPrefabs;
 	public GameObject[] charPrefabs;
 	public GameObject castlePrefab;
-	public Unit[,] buildStores = new Unit[3,25];
+	public Unit[,] buildStores = new Unit[3,5];
 	public Unit[] charStores = new Unit[50];
 	public Unit castle;
 	public enum BuildUnit {
@@ -33,8 +33,8 @@ public class BuildCtrls : MonoBehaviour {
 	float mineRate = 1f;
 	int mineDig = 5;
 
-	int[] costs = new int[] {100, 200,150,75};
-	float[] timers = new float[] {0.01f, 0.0025f,0.005f,0.01f};
+	int[] costs = new int[] {100, 150,125,50};
+	float[] timers = new float[] {0.01f, 0.006f,0.008f,0.01f};
 	int[] dependents = new int[] {-1,0,0,1};
 	int[] counters = new int[4];
 
@@ -65,6 +65,8 @@ public class BuildCtrls : MonoBehaviour {
 		SetupCastle ();
 		SetupBuildings ();
 		SetupChars ();
+
+		zone.Reset ();
 
 		// Reset Counters
 		gold = resetGold;

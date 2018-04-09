@@ -43,4 +43,15 @@ public class Zone : MonoBehaviour {
 			place.enabled = false;
 		}
 	}
+
+	/// <summary>
+	/// Reset the zone by clearing all the child objects.
+	/// </summary>
+	public void Reset() {
+		foreach (BoxCollider place in places) {
+			if (place.transform.childCount > 0) {
+				place.transform.GetChild(0).parent = null;
+			}
+		}
+	}
 }

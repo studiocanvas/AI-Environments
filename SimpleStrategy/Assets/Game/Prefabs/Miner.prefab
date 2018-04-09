@@ -432,11 +432,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bccb0c35a5907c643b0a64f3d6231838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
   maxHealth: 1
   health: 1
   recoveryRate: 0.1
   isActive: 1
   zone: {fileID: 0}
+  buildCtrl: {fileID: 0}
 --- !u!114 &114354905645798542
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -497,6 +499,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthBar: {fileID: 114723995807711898}
+  isBillboard: 0
 --- !u!114 &114785745382866984
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -548,11 +551,11 @@ NavMeshObstacle:
   m_Enabled: 1
   serializedVersion: 3
   m_Shape: 1
-  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_Extents: {x: 0.35, y: 0.5, z: 0.35}
   m_MoveThreshold: 0.1
   m_Carve: 0
   m_CarveOnlyStationary: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.5, z: 0}
   m_TimeToStationary: 0.5
 --- !u!222 &222526997102408478
 CanvasRenderer:

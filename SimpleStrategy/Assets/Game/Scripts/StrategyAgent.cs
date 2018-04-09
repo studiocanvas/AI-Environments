@@ -8,7 +8,6 @@ public class StrategyAgent : Agent
 	BuildCtrls buildCtrl;
 	BuildCtrls.BuildUnit buildUnit = BuildCtrls.BuildUnit.None;
 	int charSelect = -1;
-	int zoneSelect = 0;
 	int prevKills;
 	int prevDeaths;
 	int prevCreates;
@@ -33,87 +32,81 @@ public class StrategyAgent : Agent
 		AddVectorObs(buildCtrl.gameManager.places);
 
 		// Character Movements
-//		foreach (Vector3 charPos in GameManager.charPos) {
-//			AddVectorObs (charPos);
+//		foreach (Vector3 charPos in buildCtrl.gameManager.charPos) {
+//			AddVectorObs (charPos.x);
+//			AddVectorObs (charPos.z);
 //		}
+	}
+
+	/// <summary>
+	/// Snap the specified inFloat to inSnap.
+	/// </summary>
+	/// <param name="inFloat">In float.</param>
+	/// <param name="inSnap">In snap.</param>
+	int Snap (float inFloat, float inSnap) {
+		float f = Mathf.Clamp01(inFloat); 
+		float snap = 1f / inSnap; 
+		int i = Mathf.RoundToInt(f / snap); 
+		return i;
 	}
 
 	public override void AgentAction(float[] vectorAction, string textAction)
 	{
-		int action = Mathf.FloorToInt(vectorAction[0]);
+		
+		//txtDebug.text = "raw:" + Snap (vectorAction [0], 5f).ToString () +"\n";
+
+		int selectAction = Snap (vectorAction [0], 5f);
+		int buildAction = Snap (vectorAction [1], 24f);
+		int charSelect = Snap (vectorAction [2], 50f);
+		int attackAction = Snap (vectorAction [3], 99f);
 
 		// Building
-		switch (action)
-		{
-		case -1:
+		switch (selectAction) {
+		case 1:
 			buildUnit = BuildCtrls.BuildUnit.Miner;
 			break;
-		case -2:
+		case 2:
 			buildUnit = BuildCtrls.BuildUnit.Barracks;
 			break;
-		case -3:
+		case 3:
 			buildUnit = BuildCtrls.BuildUnit.Turret;
 			break;
-		case -4:
-			buildCtrl.CreateChar(BuildCtrls.BuildUnit.Soldier);
+		case 4:
+			buildCtrl.CreateChar (BuildCtrls.BuildUnit.Soldier);
 			break;
-		case -5:
-			// Control all soldiers
+		case 5:
 			buildUnit = BuildCtrls.BuildUnit.None;
+			break;
 
+		}
+		if (attackAction > 0 && charSelect > 0) {
 			// Control single soldier
-//			int tryCount = 0;
-//			do {
-//				charSelect++;
-//				charSelect = charSelect%buildCtrl.charStores.Length;
-//				tryCount++;
-//				if (tryCount > buildCtrl.charStores.Length) {
-//					charSelect = -1;
-//					break;
-//				}
-//			} while (!buildCtrl.charStores [charSelect] || !buildCtrl.charStores [charSelect].isActive);
-			break;
-		case -6:
-			zoneSelect = 0;
-			break;
-		case -7:
-			zoneSelect = 1;
-			break;
-		case -8:
-			zoneSelect = 2;
-			break;
-		case -9:
-			zoneSelect = 3;
-			break;
+			if (buildCtrl.charStores [charSelect - 1] && buildCtrl.charStores [charSelect - 1].isActive) {
+				int zoneSelect = Snap (vectorAction [1], 4f) - 1;
+				if (zoneSelect >= 0) {
+					int placesLength = buildCtrl.gameManager.zones [zoneSelect].places.Length;
+					int attackPlace = attackAction - (placesLength * zoneSelect);
+					attackPlace = Mathf.Clamp (attackPlace,0 , placesLength - 1);
+					//txtDebug.text = "z:"+ zoneSelect.ToString ()+" p:"+attackPlace.ToString();
+
+					buildCtrl.charStores [charSelect - 1].gameObject.GetComponent<CharBot> ().Walk (buildCtrl.gameManager.zones [zoneSelect].places [attackPlace].transform.position);
+				}
+			}
 		}
 
 
-		if (action > 0) {
+		if (buildAction > 0) {
 			//Debug.Log (action);
-			txtDebug.text = "action:"+ action.ToString ();
+			//txtDebug.text = "place:"+ buildAction.ToString ();
 
 			if (buildUnit != BuildCtrls.BuildUnit.None) {
 				//Debug.Log (action);
-				buildCtrl.BuildConfirm (buildUnit, buildCtrl.zone.places [action - 1].transform);
+				buildCtrl.BuildConfirm (buildUnit, buildCtrl.zone.places [buildAction - 1].transform);
 				buildUnit = BuildCtrls.BuildUnit.None;
 			}
-
-			// Attack
-			// Control all soldiers
-			if (buildUnit == BuildCtrls.BuildUnit.None) {
-				foreach (Unit charStore in buildCtrl.charStores) {
-					if (charStore && charStore.isActive) {
-						charStore.gameObject.GetComponent<CharBot> ().Walk (buildCtrl.gameManager.zones [zoneSelect].places [action - 1].transform.position);
-					}
-				}
-			}
-			// Control single soldier
-//			if (charSelect >= 0) {
-//				buildCtrl.charStores [charSelect].gameObject.GetComponent<CharBot> ().Walk (buildCtrl.gameManager.zones[zoneSelect].places [action - 1].transform.position);
-//			}
 		}
 
-		//AddReward(-0.01f);
+		AddReward(-0.01f);
 
 		// Reward for destroying enemy units
 		if (buildCtrl.kills != prevKills) {
@@ -123,7 +116,7 @@ public class StrategyAgent : Agent
 		}
 		if (buildCtrl.creates != prevCreates) {
 			prevCreates = buildCtrl.creates;
-			AddReward(1f / 4f);
+			//AddReward(1f / 4f);
 			currentSteps = 0;
 		}
 
@@ -134,17 +127,17 @@ public class StrategyAgent : Agent
 			currentSteps = 0;
 		}
 
-		// Timeout
-		if (buildCtrl.castle.isActive && action != 0) {
-			currentSteps++;
-			txtDebug.text += "\nsteps: "+currentSteps.ToString ();
-			//AddReward(-1f / 100f);
-			if (currentSteps > maxSteps) {
-				//Done ();
-				buildCtrl.castle.Died ();
-				buildCtrl.SetupBuildings ();
-			}
-		}
+//		// Timeout
+//		if (buildCtrl.castle.isActive && action != 0) {
+//			currentSteps++;
+//			txtDebug.text += "\nsteps: "+currentSteps.ToString ();
+//			//AddReward(-1f / 100f);
+//			if (currentSteps > maxSteps) {
+//				//Done ();
+//				buildCtrl.castle.Died ();
+//				buildCtrl.SetupBuildings ();
+//			}
+//		}
 
 		// lose game
 		if (!buildCtrl.castle.isActive) {
