@@ -28,7 +28,9 @@ public class BuildCtrls : MonoBehaviour {
 
 	int prevGold;
 	int resetGold = 100;
+	int maxGold = 100000;
 	public int gold;
+	int totalGold;
 	float mineTimer;
 	float mineRate = 1f;
 	int mineDig = 5;
@@ -70,6 +72,7 @@ public class BuildCtrls : MonoBehaviour {
 
 		// Reset Counters
 		gold = resetGold;
+		totalGold = 0;
 		counters = new int[4];
 		kills = 0;
 		deaths = 0;
@@ -131,9 +134,15 @@ public class BuildCtrls : MonoBehaviour {
 			}
 
 			// Increase Gold Mining
-			if (Time.time > mineTimer + mineRate * GameManager.globalSpeed) {
-				mineTimer = Time.time;
-				gold += GetBuildCount (BuildUnit.Miner) * mineDig;
+			if (totalGold < maxGold) {
+				if (Time.time > mineTimer + mineRate * GameManager.globalSpeed) {
+					mineTimer = Time.time;
+					gold += GetBuildCount (BuildUnit.Miner) * mineDig;
+					totalGold += GetBuildCount (BuildUnit.Miner) * mineDig;
+				}
+			} else {
+				// lose if run out of gold
+				castle.isActive = false;
 			}
 			if (prevGold != gold) {
 				prevGold = gold;
