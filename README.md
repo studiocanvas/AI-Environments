@@ -1,9 +1,9 @@
-### AI Env - SimpleStrategyGame
+### AI Env - SimpleStrategy, SimplePlatformer
 Game Environments for testing AI
 
 ## DESCRIPTION:
 
-Strategy game environment used for testing AI against the basic elements of a strategy game.
+Strategy game environment used for testing AI against the basic elements of a strategy game and platformer.
 
 ## REQUIREMENTS:
 
@@ -23,12 +23,17 @@ https://github.com/Unity-Technologies/ml-agents/tree/master/docs
 
 ## GAME: 
 
+Simple Strategy
 - Destroy enemy castle to win.
 - Players can only build in their zone.
 - Create Mining building to generate income.
 - Create a Barracks to produce soldiers.
 - Creating Turrets for defense 
 - Directed Soldiers to attack enemy bases.
+
+Simple Platformer
+- Get Key 
+- Go to the green door
 
 ## SETTINGS:
 
